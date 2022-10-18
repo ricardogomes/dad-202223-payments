@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit'
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100,
+  max: 200,
   standardHeaders: true,
   legacyHeaders: false
 })
@@ -14,32 +14,94 @@ app.use(express.json())
 app.use(limiter)
 
 const validPaymentTypes = ['mbway','paypal','visa']
+const validRequestProperties = ['type','reference','value']
 
-const validateReferences = (data)=>{
+const validateBodyProperties = (data) => {
+  let res = validRequestProperties.every(prop => data.hasOwnProperty(prop))
+  if (!res) {
+    return false
+  }
+  for (let prop in data) {
+    if (!validRequestProperties.includes(prop)) {
+      return false
+    }
+  }
+  return true
+}
+
+const validateReferences = (data) => {
   if(!data.type || !data.reference) return false
   switch(data.type){
     case 'mbway':
-      return /^9[0-9]{8}$/.test(data.reference)
+      return /^[1-9][0-9]{8}$/.test(data.reference)
     case 'paypal':
       return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(data.reference)
     case 'visa':
-      return /^4[0-9]{15}$/.test(data.reference)
+      return /^[1-9][0-9]{15}$/.test(data.reference)
     default:
       return false
   }
 }
 
-const validateValues = (data)=>{
-  if (!data.type || !data.value) return false
+const validateValue = (data) => {
+  if(!data.value) return false
+  if (!(typeof data.value === 'number')) return false
+  const num = data.value.toFixed(2)
+  if (Math.sign(num) !== 1) return false
+  return num > 0
+}
+
+const validateRequestBody = (data) => {
+  if (!validateBodyProperties(data)) {
+    return 'invalid request object format'
+  }
+  if( !data.type || !validPaymentTypes.includes(data.type)) {
+    return 'invalid type'
+  }
+  if(!validateReferences(data)){
+    return 'invalid reference'
+  }
+  if(!validateValue(data)) {
+    return 'invalid value'
+  }
+  return '';
+}
+
+
+const simulateValue = (data)=>{
+  const num = data.value.toFixed(2)
   switch(data.type){
-    case 'mbway': return data.value <= 10 
-    case 'paypal': return data.value <= 50 
-    case 'visa': return data.value <= 200 
+    case 'mbway': return num <= 10 
+    case 'paypal': return num <= 50 
+    case 'visa': return num <= 200 
     default:
       return false
   }
 }
 
+const simulateReference = (data) => {
+  switch(data.type){
+    case 'mbway':
+      return data.reference.startsWith('9')
+    case 'paypal':
+      return data.reference.endsWith('.pt') || data.reference.endsWith('.com')
+    case 'visa':
+      return data.reference.startsWith('4')
+    default:
+      return false
+  }
+}
+
+
+const simulateOperation = (data) => {
+  if(!simulateReference(data)){
+    return 'payment reference not accepted'
+  }
+  if(!simulateValue(data)) {
+    return 'payment limit exceeded'
+  }
+  return '';
+}
 
 app.get('/',(req,res)=>{
   res.send({
@@ -52,41 +114,37 @@ app.get('/',(req,res)=>{
 })
 
 app.post('/api/payments', (req, res)=>{
-  console.log(req.body)
+  //console.log(req.body)
   const data = req.body
-  if( !data.type || !validPaymentTypes.includes(data.type)) {
+  let msg = validateRequestBody(data)
+  if (msg) {
     res.status(422)
-    return res.send({status:'invalid',message:'invalid type'})
+    return res.send({status:'invalid request', message:msg})
   }
-  if(!validateReferences(data)){
+  msg = simulateOperation(data)
+  if (msg) {
     res.status(422)
-    return res.send({status:'invalid',message:'invalid reference'})
-  }
-  if(!data.value || !Number.isInteger(data.value) || data.referece <= 0 || !validateValues(data)) {
-    res.status(422)
-    return res.send({status:'invalid',message:'invalid value'})
+    return res.send({status:'invalid operation', message:msg})
   }
   res.status(201)
-  res.send({status:'valid',message:'payment registered'})
+  res.send({status:'valid',message:'payment registered',value:data.value.toFixed(2)})
 })
 
 app.post('/api/refunds', (req, res)=>{
-  console.log(req.body)
+  //console.log(req.body)
   const data = req.body
-  if( !data.type || !validPaymentTypes.includes(data.type)) {
+  let msg = validateRequestBody(data)
+  if (msg) {
     res.status(422)
-    return res.send({status:'invalid',message:'invalid type'})
+    return res.send({status:'invalid request', message:msg})
   }
-  if(!validateReferences(data)){
+  msg = simulateOperation(data)
+  if (msg) {
     res.status(422)
-    return res.send({status:'invalid',message:'invalid reference'})
-  }
-  if(!data.value || !Number.isInteger(data.value) || data.referece <= 0 || !validateValues(data)) {
-    res.status(422)
-    return res.send({status:'invalid',message:'invalid value'})
+    return res.send({status:'invalid operation', message:msg})
   }
   res.status(201)
-  res.send({status:'valid',message:'refund registered'})
+  res.send({status:'valid',message:'refund registered',value:data.value.toFixed(2)})
 })
 
 
