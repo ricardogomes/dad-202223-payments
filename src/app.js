@@ -58,6 +58,10 @@ const validateRequestBody = (data) => {
   if( !data.type || !validPaymentTypes.includes(data.type)) {
     return 'invalid type'
   }
+  if(typeof data.reference != 'string') {
+    // should never be String object because it is parse by express.json
+    return 'reference must be a string'
+  }
   if(!validateReferences(data)){
     return 'invalid reference'
   }
