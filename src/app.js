@@ -1,8 +1,17 @@
-import  express from 'express'
+import express from 'express'
+import rateLimit from 'express-rate-limit'
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false
+})
 
 const PORT = process.env.PORT || 80
 const app = express()
 app.use(express.json())
+app.use(limiter)
 
 const validPaymentTypes = ['mbway','paypal','visa']
 
@@ -82,5 +91,5 @@ app.post('/api/refunds', (req, res)=>{
 
 
 app.listen(PORT, ()=>{
-  console.log('Server Listening')
+  console.log(`Server Listening on PORT ${PORT}`)
 })
