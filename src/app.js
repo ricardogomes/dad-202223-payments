@@ -1,5 +1,6 @@
 import express from 'express'
 import rateLimit from 'express-rate-limit'
+import cors from 'cors'
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -12,6 +13,12 @@ const PORT = process.env.PORT || 80
 const app = express()
 app.use(express.json())
 app.use(limiter)
+app.use(cors({
+  origin:'*',
+  methods: "GET,POST",
+  preflightContinue: true,
+  optionsSuccessStatus: 204
+}))
 
 const validPaymentTypes = ['mbway','paypal','visa']
 const validRequestProperties = ['type','reference','value']
@@ -55,7 +62,7 @@ const validateRequestBody = (data) => {
   if (!validateBodyProperties(data)) {
     return 'invalid request object format'
   }
-  if( !data.type || !validPaymentTypes.includes(data.type)) {
+  if( !validPaymentTypes.includes(data.type)) {
     return 'invalid type'
   }
   if(typeof data.reference != 'string') {
