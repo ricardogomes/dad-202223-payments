@@ -1,6 +1,5 @@
-import express from 'express'
-import rateLimit from 'express-rate-limit/dist/index.cjs'
-import cors from 'cors'
+const rateLimit = require('express-rate-limit')
+const cors = require('cors')
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -9,9 +8,9 @@ const limiter = rateLimit({
   legacyHeaders: false
 })
 
-const PORT = process.env.PORT || 80
-const app = express()
-app.use(express.json())
+const PORT = process.env.PORT || 8080
+const app = require('express')()
+//app.use(express.json())
 app.use(limiter)
 app.use(cors({
   origin:'*',

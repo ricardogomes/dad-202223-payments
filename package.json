@@ -4,11 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "PORT=8080 node src/app.js"
+    "start": "node api/index.js"
   },
   "keywords": [],
-  "type": "module",
   "author": "",
   "license": "ISC",
   "dependencies": {
