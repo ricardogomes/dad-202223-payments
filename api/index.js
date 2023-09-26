@@ -107,15 +107,15 @@ const simulateValue = (data) => {
 const simulateReference = (data) => {
   switch (data.type) {
     case "MBWAY":
-      return data.reference.startsWith("90");
-    case "PAYPAL":
-      return data.reference.startsWith("xx");
-    case "VISA":
-      return data.reference.startsWith("40");
-    case "MB":
       return data.reference.startsWith("9");
+    case "PAYPAL":
+      return !data.reference.startsWith("xx");
+    case "VISA":
+      return data.reference.startsWith("4");
+    case "MB":
+      return !data.reference.startsWith("9");
     case "IBAN":
-      return data.reference.startsWith("XX");
+      return !data.reference.startsWith("XX");
     default:
       return false;
   }
