@@ -50,7 +50,7 @@ const validateReferences = (data) => {
     case "VISA":
       return /^[1-9][0-9]{15}$/.test(data.reference);
     case "MB":
-      return /^[1-9][0-9]{4}$\-[1-9][0-9]{8}/.test(data.reference);
+      return /^[1-9][0-9]{4}\-[1-9][0-9]{8}$/.test(data.reference);
     case "IBAN":
       return /^[A-Z]{2}[0-9]{23}$/.test(data.reference);
     default:
