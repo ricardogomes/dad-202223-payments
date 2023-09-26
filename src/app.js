@@ -116,7 +116,7 @@ const simulateOperation = (data) => {
 
 app.get('/',(req,res)=>{
   res.send({
-    name: 'DAD 202223 Payments API',
+    name: 'DAD 202324 Payments API',
     usage: {
       payments: ' POST /api/payments',
       refunds: 'POST /api/refunds'
