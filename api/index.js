@@ -44,7 +44,7 @@ const validateReferences = (data) => {
     case "MBWAY":
       return /^[1-9][0-9]{8}$/.test(data.reference);
     case "PAYPAL":
-      return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+      return /^[a-zA-Z0-9.!#$%&’*+\/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
         data.reference
       );
     case "VISA":
