@@ -141,7 +141,7 @@ app.get("/api", (req, res) => {
   });
 });
 
-app.post("/api/debits", (req, res) => {
+app.post("/api/debit", (req, res) => {
   const data = req.body;
   let msg = validateRequestBody(data);
   if (msg) {
@@ -161,7 +161,7 @@ app.post("/api/debits", (req, res) => {
   });
 });
 
-app.post("/api/credits", (req, res) => {
+app.post("/api/credit", (req, res) => {
   const data = req.body;
   let msg = validateRequestBody(data);
   if (msg) {
