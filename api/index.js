@@ -1,5 +1,5 @@
 import express from 'express'
-import rateLimit from 'express-rate-limit'
+import rateLimit from 'express-rate-limit/dist/index.cjs'
 import cors from 'cors'
 
 const limiter = rateLimit({
@@ -123,6 +123,16 @@ app.get('/',(req,res)=>{
     }
   })
 })
+
+app.get("/api", (req, res) => {
+  res.send({
+    name: "DAD 202324 Payments API",
+    usage: {
+      payments: " POST /api/payments",
+      refunds: "POST /api/refunds",
+    },
+  });
+});
 
 app.post('/api/payments', (req, res)=>{
   //console.log(req.body)
