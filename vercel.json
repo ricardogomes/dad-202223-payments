@@ -1,16 +1,4 @@
 {
-  "version": 2,
   "installCommand": "npm install",
-  "builds": [
-    {
-      "src": "src/app.js",
-      "use": "@now/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "src/app.js"
-    }
-  ]
+  "rewrites": [{ "source": "/api/(.*)", "destination": "/api" }]
 }
