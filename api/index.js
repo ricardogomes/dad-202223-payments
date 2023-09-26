@@ -22,7 +22,7 @@ app.use(
   })
 );
 
-const validPaymentTypes = ["mbway", "paypal", "visa"];
+const validPaymentTypes = ["MBWAY", "PAYPAL", "VISA", "MB", "IBAN"];
 const validRequestProperties = ["type", "reference", "value"];
 
 const validateBodyProperties = (data) => {
@@ -41,14 +41,18 @@ const validateBodyProperties = (data) => {
 const validateReferences = (data) => {
   if (!data.type || !data.reference) return false;
   switch (data.type) {
-    case "mbway":
+    case "MBWAY":
       return /^[1-9][0-9]{8}$/.test(data.reference);
-    case "paypal":
+    case "PAYPAL":
       return /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
         data.reference
       );
-    case "visa":
+    case "VISA":
       return /^[1-9][0-9]{15}$/.test(data.reference);
+    case "MB":
+      return /^[1-9][0-9]{4}$\-[1-9][0-9]{8}/.test(data.reference);
+    case "IBAN":
+      return /^[A-Z]{2}[0-9]{23}$/.test(data.reference);
     default:
       return false;
   }
@@ -85,12 +89,16 @@ const validateRequestBody = (data) => {
 const simulateValue = (data) => {
   const num = data.value.toFixed(2);
   switch (data.type) {
-    case "mbway":
-      return num <= 10;
-    case "paypal":
+    case "MBWAY":
       return num <= 50;
-    case "visa":
+    case "PAYPAL":
+      return num <= 100;
+    case "VISA":
       return num <= 200;
+    case "MB":
+      return num <= 500;
+    case "IBAN":
+      return num <= 1000;
     default:
       return false;
   }
@@ -98,12 +106,16 @@ const simulateValue = (data) => {
 
 const simulateReference = (data) => {
   switch (data.type) {
-    case "mbway":
+    case "MBWAY":
+      return data.reference.startsWith("90");
+    case "PAYPAL":
+      return data.reference.startsWith("xx");
+    case "VISA":
+      return data.reference.startsWith("40");
+    case "MB":
       return data.reference.startsWith("9");
-    case "paypal":
-      return data.reference.endsWith(".pt") || data.reference.endsWith(".com");
-    case "visa":
-      return data.reference.startsWith("4");
+    case "IBAN":
+      return data.reference.startsWith("XX");
     default:
       return false;
   }
@@ -119,28 +131,17 @@ const simulateOperation = (data) => {
   return "";
 };
 
-app.get("/", (req, res) => {
-  res.send({
-    name: "DAD 202324 Payments API",
-    usage: {
-      payments: " POST /api/payments",
-      refunds: "POST /api/refunds",
-    },
-  });
-});
-
 app.get("/api", (req, res) => {
   res.send({
     name: "DAD 202324 Payments API",
     usage: {
-      payments: " POST /api/payments",
-      refunds: "POST /api/refunds",
+      credits: " POST /api/credits",
+      debits: "POST /api/debits",
     },
   });
 });
 
-app.post("/api/payments", (req, res) => {
-  //console.log(req.body)
+app.post("/api/debits", (req, res) => {
   const data = req.body;
   let msg = validateRequestBody(data);
   if (msg) {
@@ -155,13 +156,12 @@ app.post("/api/payments", (req, res) => {
   res.status(201);
   res.send({
     status: "valid",
-    message: "payment registered",
+    message: "debit registered",
     value: data.value.toFixed(2),
   });
 });
 
-app.post("/api/refunds", (req, res) => {
-  //console.log(req.body)
+app.post("/api/credits", (req, res) => {
   const data = req.body;
   let msg = validateRequestBody(data);
   if (msg) {
@@ -176,13 +176,9 @@ app.post("/api/refunds", (req, res) => {
   res.status(201);
   res.send({
     status: "valid",
-    message: "refund registered",
+    message: "credit registered",
     value: data.value.toFixed(2),
   });
 });
-
-// app.listen(PORT, ()=>{
-//   console.log(`Server Listening on PORT ${PORT}`)
-// })
 
 module.exports = app;
