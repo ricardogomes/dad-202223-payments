@@ -111,7 +111,7 @@ const simulateReference = (data) => {
     case "PAYPAL":
       return !data.reference.startsWith("xx");
     case "VISA":
-      return data.reference.startsWith("4");
+      return data.reference.startsWith("4") && !data.reference.startsWith("40");
     case "MB":
       return !data.reference.startsWith("9");
     case "IBAN":
