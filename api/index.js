@@ -90,15 +90,15 @@ const simulateValue = (data) => {
   const num = data.value.toFixed(2);
   switch (data.type) {
     case "MBWAY":
-      return num <= 50;
+      return num <= 5;
     case "PAYPAL":
-      return num <= 100;
+      return num <= 10;
     case "VISA":
-      return num <= 200;
+      return num <= 30;
     case "MB":
-      return num <= 500;
+      return num <= 20;
     case "IBAN":
-      return num <= 1000;
+      return num <= 50;
     default:
       return false;
   }
@@ -133,9 +133,8 @@ const simulateOperation = (data) => {
 
 app.get("/api", (req, res) => {
   res.send({
-    name: "DAD 202324 Payments API",
+    name: "DAD 202425 Payments API",
     usage: {
-      credits: " POST /api/credits",
       debits: "POST /api/debits",
     },
   });
@@ -161,24 +160,24 @@ app.post("/api/debit", (req, res) => {
   });
 });
 
-app.post("/api/credit", (req, res) => {
-  const data = req.body;
-  let msg = validateRequestBody(data);
-  if (msg) {
-    res.status(422);
-    return res.send({ status: "invalid request", message: msg });
-  }
-  msg = simulateOperation(data);
-  if (msg) {
-    res.status(422);
-    return res.send({ status: "invalid operation", message: msg });
-  }
-  res.status(201);
-  res.send({
-    status: "valid",
-    message: "credit registered",
-    value: data.value.toFixed(2),
-  });
-});
+// app.post("/api/credit", (req, res) => {
+//   const data = req.body;
+//   let msg = validateRequestBody(data);
+//   if (msg) {
+//     res.status(422);
+//     return res.send({ status: "invalid request", message: msg });
+//   }
+//   msg = simulateOperation(data);
+//   if (msg) {
+//     res.status(422);
+//     return res.send({ status: "invalid operation", message: msg });
+//   }
+//   res.status(201);
+//   res.send({
+//     status: "valid",
+//     message: "credit registered",
+//     value: data.value.toFixed(2),
+//   });
+// });
 
 module.exports = app;
