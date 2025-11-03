@@ -132,8 +132,9 @@ const simulateOperation = (data) => {
 };
 
 app.get("/api", (req, res) => {
+  const year = new Date().getFullYear()
   res.send({
-    name: "DAD 202425 Payments API",
+    name: `DAD ${year}/${String(year + 1).slice(-2)} Payments API`,
     usage: {
       debits: "POST /api/debits",
     },
